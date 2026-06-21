@@ -13,9 +13,7 @@ spec:
     metadata:
       {{- if .Values.anubis.config }}
       annotations:
-        {{- if .Values.anubis.config }}
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
-        {{- end }}
       {{- end }}
       labels:
         {{- include "anubis.selectorLabels" . | nindent 8 }}
@@ -34,17 +32,32 @@ spec:
           {{- end }}
           {{- $target := printf "http://%s.%s.svc.cluster.local:%v" .Values.target.service.name .Release.Namespace .Values.target.service.port }}
           env:
+            {{- if eq .Values.mode "forwardAuth" }}
+            - name: TARGET
+              value: ""
+            - name: BIND
+              value: {{ printf ":%v" .Values.anubis.port | quote }}
+            - name: REDIRECT_DOMAINS
+              {{- if .Values.forwardAuth.redirectDomains }}
+              value: {{ join "," .Values.forwardAuth.redirectDomains | quote }}
+              {{- else }}
+              value: {{ .Values.forwardAuth.traefik.host | quote }}
+              {{- end }}
+            - name: COOKIE_DOMAIN
+              {{- if .Values.forwardAuth.cookieDomain }}
+              value: {{ .Values.forwardAuth.cookieDomain | quote }}
+              {{- else }}
+              value: {{ .Values.forwardAuth.traefik.host | quote }}
+              {{- end }}
+            {{- else }}
             - name: TARGET
               value: {{ default $target .Values.anubis.targetOverride | quote }}
             - name: BIND
               value: {{ printf ":%v" .Values.anubis.port | quote }}
+            {{- end }}
             {{- if .Values.anubis.metrics.enabled }}
             - name: METRICS_BIND
               value: {{ printf ":%v" .Values.anubis.metrics.port | quote }}
-            {{- end }}
-            {{- if .Values.publicURL }}
-            - name: PUBLIC_URL
-              value: {{ .Values.publicURL | quote }}
             {{- end }}
             {{- if or .Values.anubis.config .Values.anubis.existingConfigMap }}
             - name: POLICY_FNAME
@@ -67,6 +80,22 @@ spec:
             - name: metrics
               containerPort: {{ .Values.anubis.metrics.port }}
             {{- end }}
+          {{- if eq .Values.mode "forwardAuth" }}
+          livenessProbe:
+            exec:
+              command:
+                - anubis
+                - --healthcheck
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            exec:
+              command:
+                - anubis
+                - --healthcheck
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          {{- end }}
           {{- with .Values.anubis.resources }}
           resources:
             {{- toYaml . | nindent 12 }}

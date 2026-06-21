@@ -43,7 +43,9 @@ Uninstalling the operator removes the controller and its resources.
 
 After the operator is installed, apply an `AnubisProxy` resource.
 
-For the full values reference used by the operator spec, see [specs here](helm-charts/anubis/README.md).
+The operator supports two operating modes: **proxy** (default, Anubis as a reverse proxy) and **forwardAuth** (Traefik `forwardauth` middleware — Anubis is consulted per request but never sees the response body). Traefik is the only supported ingress for forwardAuth today.
+
+For the full values reference used by the operator chart, see [helm-charts/anubis/README.md](helm-charts/anubis/README.md).
 
 Before creating an `AnubisProxy`, create the Anubis signing key Secret:
 
@@ -129,4 +131,4 @@ Examples:
 
 ## Credits
 
-The logo is owned by TecharoHQ. 
+The logo is owned by TecharoHQ.

@@ -17,7 +17,6 @@ metadata:
                 "port": 80
               }
             },
-            "publicURL": "https://git.example.com",
             "anubis": {
               "replicas": 2,
               "keys": {
@@ -46,7 +45,8 @@ metadata:
 spec:
   apiservicedefinitions: {}
   customresourcedefinitions: {}
-  description: Deploy and manage Anubis proxy instances with a single AnubisProxy custom resource backed by a Helm chart.
+  description: Deploy and manage Anubis proxy instances with a single AnubisProxy
+    custom resource backed by a Helm chart.
   displayName: Anubis Operator
   install:
     spec:

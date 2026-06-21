@@ -1,0 +1,39 @@
+{{- if eq .Values.mode "forwardAuth" }}
+{{- if empty .Values.forwardAuth.traefik.host }}
+{{- fail "forwardAuth.traefik.host is required when mode is forwardAuth" }}
+{{- end }}
+{{- $faDefaults := dict
+  "trustForwardHeader" true
+  "preserveLocationHeader" true
+  "preserveRequestMethod" true
+  "authRequestHeaders" (list
+    "Accept"
+    "Accept-Language"
+    "Cookie"
+    "X-Real-Ip"
+    "X-Forwarded-For"
+    "X-Forwarded-Host"
+    "X-Forwarded-Proto"
+    "X-Forwarded-Uri"
+    "User-Agent"
+  )
+}}
+{{- $faConfig := mergeOverwrite $faDefaults .Values.forwardAuth.traefik.middleware.forwardAuth }}
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ include "anubis.fullname" . }}-auth
+  labels:
+    {{- include "anubis.labels" . | nindent 4 }}
+  {{- with .Values.forwardAuth.traefik.middleware.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- with .Values.forwardAuth.traefik.middleware.spec }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
+  forwardAuth:
+    address: http://{{ include "anubis.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.port }}/.within.website/x/cmd/anubis/api/check
+    {{- toYaml $faConfig | nindent 4 }}
+{{- end }}

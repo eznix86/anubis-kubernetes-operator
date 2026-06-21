@@ -1,0 +1,39 @@
+{{- if eq .Values.mode "forwardAuth" }}
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ include "anubis.fullname" . }}
+  labels:
+    {{- include "anubis.labels" . | nindent 4 }}
+  {{- with .Values.forwardAuth.traefik.ingressRoute.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  entryPoints:
+    {{- toYaml .Values.forwardAuth.traefik.entryPoints | nindent 4 }}
+  routes:
+    {{- if .Values.forwardAuth.traefik.bypassRoute.enabled }}
+    - kind: Rule
+      match: {{ printf "Host(`%s`) && PathPrefix(`/.within.website/`)" .Values.forwardAuth.traefik.host | quote }}
+      priority: 100
+      services:
+        - name: {{ include "anubis.fullname" . }}
+          port: {{ .Values.service.port }}
+    {{- end }}
+    - kind: Rule
+      match: {{ printf "Host(`%s`)" .Values.forwardAuth.traefik.host | quote }}
+      priority: 1
+      middlewares:
+        - name: {{ include "anubis.fullname" . }}-auth
+      services:
+        - name: {{ .Values.target.service.name }}
+          port: {{ .Values.target.service.port }}
+    {{- with .Values.forwardAuth.traefik.ingressRoute.extraRoutes }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- if .Values.forwardAuth.traefik.tlsSecret }}
+  tls:
+    secretName: {{ .Values.forwardAuth.traefik.tlsSecret }}
+  {{- end }}
+{{- end }}

@@ -7,10 +7,6 @@ target:
     name: ""
     port: 80
 
-# Canonical external URL Anubis should use for redirects and generated links.
-# This maps directly to the upstream PUBLIC_URL setting.
-publicURL: ""
-
 anubis:
   image:
     repository: ghcr.io/techarohq/anubis
@@ -35,6 +31,10 @@ anubis:
   # Mount path for inline or existing ConfigMap policy files.
   policyFile: /etc/anubis/botPolicies.yaml
   # Extra environment variables passed directly to the Anubis container.
+  # These apply to all modes (proxy and forwardAuth).
+  # Note: Kubernetes uses last-env-wins semantics. If you duplicate a variable
+  # that the chart already sets (e.g. REDIRECT_DOMAINS, COOKIE_DOMAIN), the
+  # value from envExtra takes precedence over the structured configuration.
   # https://anubis.techaro.lol/docs/admin/configuration/redirect-domains
   #
   envExtra:
@@ -104,3 +104,44 @@ gateway:
   enabled: false
   parentRefs:
   hostnames:
+
+# Operating mode: "proxy" (default) or "forwardAuth".
+# In proxy mode, Anubis acts as a reverse proxy (Ingress/HTTPRoute → Anubis → workload).
+# In forwardAuth mode, Traefik consults Anubis for auth checks before routing to the workload.
+mode: proxy
+
+forwardAuth:
+  # Domains Anubis can redirect to (supports globs). Defaults to traefik host.
+  redirectDomains: []
+  # Cookie domain for the challenge cookie. Defaults to traefik host.
+  cookieDomain: ""
+  traefik:
+    # Public hostname used for Traefik routing and Anubis REDIRECT_DOMAINS/COOKIE_DOMAIN.
+    host: ""
+    # Traefik entry points for the generated IngressRoute.
+    entryPoints:
+      - websecure
+    # Secret name for TLS on the IngressRoute.
+    tlsSecret: ""
+    bypassRoute:
+      # Generate a bypass IngressRoute for Anubis challenge asset paths (/.within.website/).
+      enabled: true
+    ingressRoute:
+      # Annotations applied to the generated IngressRoute.
+      annotations: {}
+      # Extra routes appended to the generated IngressRoute.
+      extraRoutes: []
+        # - kind: Rule
+        #   match: "Host(`example.com`) && PathPrefix(`/api`)"
+        #   services:
+        #     - name: api-service
+        #       port: 80
+    middleware:
+      # Annotations applied to the generated Middleware.
+      annotations: {}
+      # Middleware-level fields (e.g., maxResponseBodySize). Rendered at spec level.
+      spec: {}
+        # maxResponseBodySize: 8192
+      # forwardAuth-level fields merged into spec.forwardAuth.
+      forwardAuth: {}
+        # trustForwardHeader: true

@@ -192,8 +192,6 @@ spec:
                         type: array
                     type: object
                 type: object
-              publicURL:
-                type: string
               service:
                 properties:
                   port:
@@ -219,6 +217,91 @@ spec:
                     type: object
                 required:
                 - service
+                type: object
+              mode:
+                description: 'Mode defines the operating mode. "proxy" (default)
+                  runs Anubis as a reverse proxy. "forwardAuth" runs Anubis as
+                  a Traefik forward auth provider.'
+                type: string
+                enum:
+                - proxy
+                - forwardAuth
+              forwardAuth:
+                description: ForwardAuth configures forward auth mode. Only used
+                  when mode is "forwardAuth".
+                properties:
+                  redirectDomains:
+                    description: Comma-separated list of domains Anubis can redirect
+                      to. Supports glob matching. Defaults to the traefik host.
+                    items:
+                      type: string
+                    type: array
+                  cookieDomain:
+                    description: Domain for the Anubis challenge cookie. Defaults
+                      to the traefik host.
+                    type: string
+                  traefik:
+                    description: Traefik-specific forward auth configuration.
+                    properties:
+                      host:
+                        description: Public hostname for Traefik routing and Anubis
+                          configuration.
+                        type: string
+                      entryPoints:
+                        description: Traefik entry points for the IngressRoute.
+                        items:
+                          type: string
+                        type: array
+                      tlsSecret:
+                        description: Secret name for TLS on the IngressRoute.
+                        type: string
+                      bypassRoute:
+                        description: Configuration for the bypass IngressRoute
+                          that serves Anubis challenge assets.
+                        properties:
+                          enabled:
+                            type: boolean
+                        type: object
+                      ingressRoute:
+                        description: IngressRoute-specific configuration.
+                        properties:
+                          annotations:
+                            description: Annotations applied to the generated
+                              IngressRoute.
+                            additionalProperties:
+                              type: string
+                            type: object
+                          extraRoutes:
+                            description: Extra routes appended to the generated
+                              IngressRoute.
+                            items:
+                              type: object
+                              x-kubernetes-preserve-unknown-fields: true
+                            type: array
+                        type: object
+                      middleware:
+                        description: Middleware-specific configuration.
+                        properties:
+                          annotations:
+                            description: Annotations applied to the generated Middleware.
+                            additionalProperties:
+                              type: string
+                            type: object
+                          spec:
+                            description: Middleware-level fields rendered at spec
+                              level (e.g., maxResponseBodySize).
+                            type: object
+                            x-kubernetes-preserve-unknown-fields: true
+                          forwardAuth:
+                            description: forwardAuth-level fields merged into spec.forwardAuth.
+                            type: object
+                            x-kubernetes-preserve-unknown-fields: true
+                        type: object
+                    required:
+                    - host
+                    type: object
+                required:
+                - traefik
                 type: object
             required:
             - target
