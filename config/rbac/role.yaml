@@ -72,5 +72,12 @@ rules:
   - "gateway.networking.k8s.io"
   resources:
   - "httproutes"
+- verbs:
+  - "*"
+  apiGroups:
+  - "traefik.io"
+  resources:
+  - "ingressroutes"
+  - "middlewares"
 
 # +kubebuilder:scaffold:rules
