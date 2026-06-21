@@ -34,7 +34,9 @@ spec:
           env:
             {{- if eq .Values.mode "forwardAuth" }}
             - name: TARGET
-              value: ""
+              value: " "
+            - name: PUBLIC_URL
+              value: {{ printf "https://%s" .Values.forwardAuth.traefik.host | quote }}
             - name: BIND
               value: {{ printf ":%v" .Values.anubis.port | quote }}
             - name: REDIRECT_DOMAINS
