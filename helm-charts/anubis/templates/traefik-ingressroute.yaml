@@ -1,4 +1,22 @@
 {{- if eq .Values.mode "forwardAuth" }}
+{{- if and .Values.forwardAuth.traefik.wwwRedirect (hasPrefix "www." .Values.forwardAuth.traefik.host) }}
+{{- fail "forwardAuth.traefik.host must be a bare hostname (no 'www.' prefix) when forwardAuth.traefik.wwwRedirect is true" }}
+{{- end }}
+{{- if .Values.forwardAuth.traefik.wwwRedirect }}
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ include "anubis.fullname" . }}-www-redirect
+  labels:
+    {{- include "anubis.labels" . | nindent 4 }}
+spec:
+  redirectRegex:
+    regex: {{ printf "^https?://www\\.%s/(.*)" .Values.forwardAuth.traefik.host | quote }}
+    replacement: {{ printf "https://%s/${1}" .Values.forwardAuth.traefik.host | quote }}
+    permanent: true
+{{- end }}
+---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
@@ -13,18 +31,26 @@ spec:
   entryPoints:
     {{- toYaml .Values.forwardAuth.traefik.entryPoints | nindent 4 }}
   routes:
+    {{- $host := .Values.forwardAuth.traefik.host }}
     {{- if .Values.forwardAuth.traefik.bypassRoute.enabled }}
     - kind: Rule
-      match: {{ printf "Host(`%s`) && PathPrefix(`/.within.website/`)" .Values.forwardAuth.traefik.host | quote }}
+      match: {{ printf "Host(`%s`) && PathPrefix(`/.within.website/`)" $host | quote }}
       priority: 100
       services:
         - name: {{ include "anubis.fullname" . }}
           port: {{ .Values.service.port }}
     {{- end }}
     - kind: Rule
-      match: {{ printf "Host(`%s`)" .Values.forwardAuth.traefik.host | quote }}
+      {{- if .Values.forwardAuth.traefik.wwwRedirect }}
+      match: {{ printf "Host(`%s`) || Host(`www.%s`)" $host $host | quote }}
+      {{- else }}
+      match: {{ printf "Host(`%s`)" $host | quote }}
+      {{- end }}
       priority: 1
       middlewares:
+        {{- if .Values.forwardAuth.traefik.wwwRedirect }}
+        - name: {{ include "anubis.fullname" . }}-www-redirect
+        {{- end }}
         - name: {{ include "anubis.fullname" . }}-auth
       services:
         - name: {{ .Values.target.service.name }}

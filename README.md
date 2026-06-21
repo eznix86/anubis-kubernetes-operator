@@ -154,10 +154,13 @@ spec:
 
 This generates a Traefik `Middleware` (`<release>-anubis-auth`) and an `IngressRoute` automatically. For the full field set (entry points, bypass route, custom annotations, middleware overrides), see the [chart README](helm-charts/anubis/README.md#modes).
 
+To redirect `www.<host>` to `<host>` at the edge, set `forwardAuth.traefik.wwwRedirect: true`. The chart generates a `redirectRegex` Middleware and wires it into the IngressRoute. The `host` value must be a bare hostname (no `www.` prefix) — the chart will fail rendering otherwise.
+
 Examples:
 
 - [config/samples/anubis_v1alpha1_anubisproxy.yaml](config/samples/anubis_v1alpha1_anubisproxy.yaml) — proxy mode (default)
 - [config/samples/anubis_v1alpha1_anubisproxy_forwardauth.yaml](config/samples/anubis_v1alpha1_anubisproxy_forwardauth.yaml) — Traefik forwardAuth mode
+- [config/samples/anubis_v1alpha1_anubisproxy_forwardauth_wwwredirect.yaml](config/samples/anubis_v1alpha1_anubisproxy_forwardauth_wwwredirect.yaml) — forwardAuth with `wwwRedirect` enabled
 - [config/samples/anubis_v1alpha1_anubisproxy_k3s_dev_echo.yaml](config/samples/anubis_v1alpha1_anubisproxy_k3s_dev_echo.yaml) — k3s dev environment with `nip.io`
 
 ## License

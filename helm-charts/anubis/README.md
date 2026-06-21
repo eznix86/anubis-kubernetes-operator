@@ -64,6 +64,7 @@ For upstream runtime configuration details behind values such as `anubis.envExtr
 | `forwardAuth.traefik.host` | `""` | Public hostname routed by the generated Traefik `IngressRoute`. **Required when `mode: forwardAuth`.** |
 | `forwardAuth.traefik.entryPoints` | `[websecure]` | Traefik entry points the generated `IngressRoute` binds to. |
 | `forwardAuth.traefik.tlsSecret` | `""` | Existing Secret name with the TLS cert for the generated `IngressRoute`. |
+| `forwardAuth.traefik.wwwRedirect` | `false` | Generate a `redirectRegex` Middleware that redirects `www.<host>` → `<host>`, and wire it into the generated `IngressRoute`. `host` must be a bare hostname (no `www.` prefix) when enabled. |
 | `forwardAuth.traefik.bypassRoute.enabled` | `true` | Generate a high-priority bypass route for Anubis's challenge assets under `/.within.website/`. |
 | `forwardAuth.traefik.ingressRoute.annotations` | `{}` | Annotations applied to the generated `IngressRoute`. |
 | `forwardAuth.traefik.ingressRoute.extraRoutes` | `[]` | Extra `Route` entries appended to the generated `IngressRoute` (e.g. additional hosts or paths). |

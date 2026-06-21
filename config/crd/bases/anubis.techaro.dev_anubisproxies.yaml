@@ -255,6 +255,10 @@ spec:
                       tlsSecret:
                         description: Secret name for TLS on the IngressRoute.
                         type: string
+                      wwwRedirect:
+                        description: Generate a redirect Middleware + extra route
+                          that redirects www.<host> to <host>.
+                        type: boolean
                       bypassRoute:
                         description: Configuration for the bypass IngressRoute
                           that serves Anubis challenge assets.

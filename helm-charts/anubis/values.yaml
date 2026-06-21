@@ -123,6 +123,8 @@ forwardAuth:
       - websecure
     # Secret name for TLS on the IngressRoute.
     tlsSecret: ""
+    # Generate a redirect Middleware + extra route that redirects www.<host> → <host>.
+    wwwRedirect: false
     bypassRoute:
       # Generate a bypass IngressRoute for Anubis challenge asset paths (/.within.website/).
       enabled: true
