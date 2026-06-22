@@ -8,7 +8,7 @@ Kubernetes operator for managing [Anubis](https://github.com/TecharoHQ/anubis) F
 
 ```bash
 kubectl apply -f \
-  "https://github.com/eznix86/anubis-kubernetes-operator/releases/download/v0.3.2/install.yaml"
+  "https://github.com/eznix86/anubis-kubernetes-operator/releases/download/v0.4.0/install.yaml"
 ```
 
 This installs:
@@ -34,7 +34,7 @@ This updates the installed operator to the selected release version.
 
 ```bash
 kubectl delete -f \
-  "https://github.com/eznix86/anubis-kubernetes-operator/releases/download/v0.3.2/install.yaml"
+  "https://github.com/eznix86/anubis-kubernetes-operator/releases/download/v0.4.0/install.yaml"
 ```
 
 Uninstalling the operator removes the controller and its resources.
