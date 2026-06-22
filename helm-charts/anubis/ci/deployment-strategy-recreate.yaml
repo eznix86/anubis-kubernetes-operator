@@ -1,0 +1,8 @@
+target:
+  service:
+    name: strategy-app
+    port: 80
+anubis:
+  replicas: 1
+  strategy:
+    type: Recreate

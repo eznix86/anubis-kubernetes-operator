@@ -25,6 +25,7 @@ For upstream runtime configuration details behind values such as `anubis.envExtr
 | `anubis.image.tag` | `latest` | Anubis runtime image tag. |
 | `anubis.image.pullPolicy` | `IfNotPresent` | Image pull policy for the Anubis container. |
 | `anubis.replicas` | `1` | Number of Anubis replicas to run. |
+| `anubis.strategy` | `{type: Recreate}` | `Deployment.spec.strategy` override. Defaults to `Recreate`; set `type: RollingUpdate` with surge/unavailable settings to opt into rolling deployments. |
 | `anubis.port` | `8923` | Container port exposed by the Anubis HTTP server. |
 | `anubis.metrics.enabled` | `true` | Enable the Anubis metrics endpoint in the pod. |
 | `anubis.metrics.port` | `9090` | Metrics port exposed by the Anubis container. |
@@ -164,6 +165,19 @@ Available tags are published at:
 anubis:
   image:
     tag: latest
+```
+
+### Deployment strategy
+
+The chart defaults the generated Deployment to `Recreate`. Use `anubis.strategy` to opt into rolling updates:
+
+```yaml
+anubis:
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
 ```
 
 ### Traefik forwardAuth

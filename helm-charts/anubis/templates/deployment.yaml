@@ -6,6 +6,10 @@ metadata:
     {{- include "anubis.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.anubis.replicas | default 1 }}
+  {{- with .Values.anubis.strategy }}
+  strategy:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
   selector:
     matchLabels:
       {{- include "anubis.selectorLabels" . | nindent 6 }}

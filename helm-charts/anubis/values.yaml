@@ -13,6 +13,13 @@ anubis:
     tag: latest
     pullPolicy: IfNotPresent
   replicas: 1
+  # Deployment update strategy. Defaults to Recreate; set type to RollingUpdate
+  # and configure rollingUpdate to opt into rolling deployments.
+  strategy:
+    type: Recreate
+    # rollingUpdate:
+    #   maxUnavailable: 25%
+    #   maxSurge: 25%
   # Container port exposed by the Anubis HTTP server.
   port: 8923
   metrics:

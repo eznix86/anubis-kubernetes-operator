@@ -122,6 +122,39 @@ spec:
                     format: int32
                     minimum: 1
                     type: integer
+                  strategy:
+                    default:
+                      type: Recreate
+                    description: Deployment update strategy for the Anubis Deployment.
+                      Defaults to Recreate from the Helm chart values.
+                    properties:
+                      type:
+                        default: Recreate
+                        description: Type of deployment. Can be Recreate or RollingUpdate.
+                        enum:
+                        - Recreate
+                        - RollingUpdate
+                        type: string
+                      rollingUpdate:
+                        description: Rolling update configuration. Only used when
+                          type is RollingUpdate.
+                        properties:
+                          maxSurge:
+                            anyOf:
+                            - type: integer
+                            - type: string
+                            description: Maximum number of pods that can be scheduled
+                              above the desired number of pods during an update.
+                            x-kubernetes-int-or-string: true
+                          maxUnavailable:
+                            anyOf:
+                            - type: integer
+                            - type: string
+                            description: Maximum number of pods that can be unavailable
+                              during an update.
+                            x-kubernetes-int-or-string: true
+                        type: object
+                    type: object
                   resources:
                     type: object
                     x-kubernetes-preserve-unknown-fields: true

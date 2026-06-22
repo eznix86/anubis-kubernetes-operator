@@ -1,0 +1,11 @@
+target:
+  service:
+    name: strategy-app
+    port: 80
+anubis:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
