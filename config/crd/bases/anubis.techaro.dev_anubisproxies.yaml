@@ -91,6 +91,11 @@ spec:
                     format: int32
                     minimum: 1
                     type: integer
+                  podAnnotations:
+                    description: Extra annotations added to the pod template.
+                    additionalProperties:
+                      type: string
+                    type: object
                   persistence:
                     description: Persistence configures a PVC for persistent Anubis
                       challenge state (bbolt backend).

@@ -11,9 +11,14 @@ spec:
       {{- include "anubis.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      {{- if .Values.anubis.config }}
+      {{- if or .Values.anubis.config .Values.anubis.podAnnotations }}
       annotations:
+        {{- with .Values.anubis.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- if .Values.anubis.config }}
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        {{- end }}
       {{- end }}
       labels:
         {{- include "anubis.selectorLabels" . | nindent 8 }}

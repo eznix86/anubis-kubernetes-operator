@@ -46,6 +46,8 @@ anubis:
       value: "true"
     - name: OG_EXPIRY_TIME
       value: 24h
+  # Extra annotations on the pod template.
+  podAnnotations: {}
   keys:
     # Secret containing ED25519_PRIVATE_KEY_HEX.
     existingSecret: ""
