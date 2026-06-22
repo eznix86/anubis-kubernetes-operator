@@ -53,6 +53,7 @@ rules:
   - "configmaps"
   - "serviceaccounts"
   - "services"
+  - "persistentvolumeclaims"
 - verbs:
   - "*"
   apiGroups:
