@@ -1,0 +1,28 @@
+mode: forwardAuth
+target:
+  service:
+    name: nginx
+    port: 80
+anubis:
+  existingConfigMap: anubis-policy
+  keys:
+    existingSecret: anubis-key
+  envExtra:
+    - name: DIFFICULTY
+      value: "4"
+    - name: SERVE_ROBOTS_TXT
+      value: "true"
+    - name: OG_PASSTHROUGH
+      value: "true"
+    - name: OG_EXPIRY_TIME
+      value: 24h
+forwardAuth:
+  traefik:
+    host: anubis-demo.example.com
+    entryPoints:
+      - websecure
+    tlsSecret: anubis-demo-tls
+    wwwRedirect: true
+    middleware:
+      spec:
+        maxResponseBodySize: 20971520

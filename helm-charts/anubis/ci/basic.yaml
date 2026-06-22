@@ -1,0 +1,58 @@
+target:
+  service:
+    name: forgejo
+    port: 80
+anubis:
+  replicas: 2
+  keys:
+    existingSecret: forgejo-anubis-keys
+  config: |
+    bots:
+      - import: (data)/bots/_deny-pathological.yaml
+      - import: (data)/crawlers/_allow-good.yaml
+      - name: generic-browser
+        user_agent_regex: Mozilla
+        action: WEIGH
+        weight:
+          adjust: 10
+    store:
+      backend: bbolt
+      parameters:
+        path: /data/anubis.bdb
+    thresholds:
+      - name: minimal-suspicion
+        expression: weight <= 0
+        action: ALLOW
+      - name: moderate-suspicion
+        expression: weight >= 10
+        action: CHALLENGE
+        challenge:
+          algorithm: fast
+          difficulty: 2
+  metrics:
+    enabled: true
+    port: 9090
+    service:
+      enabled: true
+      type: ClusterIP
+      port: 9090
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+networkPolicy:
+  enabled: true
+  metrics:
+    from:
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: monitoring
+        podSelector:
+          matchLabels:
+            app.kubernetes.io/name: prometheus
+gateway:
+  enabled: true
+  parentRefs:
+    - name: public-gateway
+      namespace: ingress-system
+  hostnames:
+    - git.example.com

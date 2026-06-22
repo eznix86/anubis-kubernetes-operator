@@ -40,6 +40,11 @@ For upstream runtime configuration details behind values such as `anubis.envExtr
 | `anubis.config` | `""` | Inline `botPolicies.yaml` content. Generates a ConfigMap when set. |
 | `anubis.existingConfigMap` | `""` | Existing ConfigMap name providing `botPolicies.yaml`. |
 | `anubis.resources` | requests/limits block | Container resource requests and limits for Anubis. |
+| `anubis.persistence.enabled` | `true` | Provision a PVC and mount it for persistent challenge state. |
+| `anubis.persistence.size` | `1Gi` | PVC size. |
+| `anubis.persistence.storageClassName` | `""` | Storage class for the PVC. Empty = default StorageClass. |
+| `anubis.persistence.existingClaim` | `""` | Use an existing PVC instead of creating one. |
+| `anubis.persistence.mountPath` | `/data` | Mount path inside the container. |
 | `anubis.securityContext.runAsUser` | `1000` | Pod-level user ID for the Anubis pod. |
 | `anubis.securityContext.runAsGroup` | `1000` | Pod-level group ID for the Anubis pod. |
 | `anubis.securityContext.runAsNonRoot` | `true` | Require the Anubis pod to run as a non-root user. |

@@ -1,0 +1,17 @@
+{{- if and .Values.anubis.persistence.enabled (not .Values.anubis.persistence.existingClaim) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "anubis.fullname" . }}-data
+  labels:
+    {{- include "anubis.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  {{- if .Values.anubis.persistence.storageClassName }}
+  storageClassName: {{ .Values.anubis.persistence.storageClassName | quote }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.anubis.persistence.size }}
+{{- end }}

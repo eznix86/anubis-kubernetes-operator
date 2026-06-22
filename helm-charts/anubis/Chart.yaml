@@ -4,4 +4,4 @@ description: Helm chart for deploying Anubis as a Firewall Proxy
 icon: https://anubis.techaro.lol/img/favicon.webp
 name: anubis
 type: application
-version: 0.3.2
+version: 0.4.0

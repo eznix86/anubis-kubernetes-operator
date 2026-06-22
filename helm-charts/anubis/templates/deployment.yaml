@@ -102,15 +102,29 @@ spec:
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- if or .Values.anubis.config .Values.anubis.existingConfigMap }}
           volumeMounts:
+            {{- if or .Values.anubis.config .Values.anubis.existingConfigMap }}
             - name: anubis-policy
               mountPath: {{ dir .Values.anubis.policyFile | quote }}
               readOnly: true
-          {{- end }}
-      {{- if or .Values.anubis.config .Values.anubis.existingConfigMap }}
+            {{- end }}
+            {{- if .Values.anubis.persistence.enabled }}
+            - name: anubis-data
+              mountPath: {{ .Values.anubis.persistence.mountPath | quote }}
+            {{- end }}
       volumes:
+        {{- if or .Values.anubis.config .Values.anubis.existingConfigMap }}
         - name: anubis-policy
           configMap:
             name: {{ if .Values.anubis.config }}{{ include "anubis.fullname" . }}-policy{{ else }}{{ .Values.anubis.existingConfigMap }}{{ end }}
-      {{- end }}
+        {{- end }}
+        {{- if .Values.anubis.persistence.enabled }}
+        - name: anubis-data
+          {{- if .Values.anubis.persistence.existingClaim }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.anubis.persistence.existingClaim }}
+          {{- else }}
+          persistentVolumeClaim:
+            claimName: {{ include "anubis.fullname" . }}-data
+          {{- end }}
+        {{- end }}

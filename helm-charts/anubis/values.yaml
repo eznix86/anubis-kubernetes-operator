@@ -55,6 +55,18 @@ anubis:
   config: ""
   # Existing ConfigMap providing botPolicies.yaml.
   existingConfigMap: ""
+  persistence:
+    # Provision a PVC and mount it for persistent challenge state.
+    # Set store.backend and store.parameters in anubis.config to use it.
+    enabled: true
+    # PVC size.
+    size: 1Gi
+    # Storage class. Leave empty for the default StorageClass.
+    storageClassName: ""
+    # Use an existing PVC instead of creating one.
+    existingClaim: ""
+    # Mount path inside the container.
+    mountPath: /data
   resources:
     limits:
       cpu: 750m

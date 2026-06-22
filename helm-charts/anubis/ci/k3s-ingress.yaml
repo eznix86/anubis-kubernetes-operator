@@ -1,0 +1,31 @@
+target:
+  service:
+    name: echo
+    port: 80
+anubis:
+  keys:
+    existingSecret: anubis-key
+  metrics:
+    enabled: true
+    port: 9090
+    service:
+      enabled: true
+      type: ClusterIP
+      port: 9090
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+ingress:
+  enabled: true
+  className: traefik
+  hosts:
+    - host: echo.192.168.139.24.nip.io
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - hosts:
+        - echo.192.168.139.24.nip.io
+      secretName: echo-anubis-tls
+gateway:
+  enabled: false

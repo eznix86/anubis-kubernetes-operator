@@ -1,0 +1,79 @@
+name: Helm Chart CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "helm-charts/**"
+      - "config/samples/**"
+      - "config/crd/**"
+  pull_request:
+    branches: [main]
+    paths:
+      - "helm-charts/**"
+      - "config/samples/**"
+      - "config/crd/**"
+  workflow_dispatch:
+
+jobs:
+  helm:
+    name: Lint & render
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.17.3
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install PyYAML
+        run: pip install pyyaml
+
+      - name: Lint chart
+        run: helm lint helm-charts/anubis
+
+      - name: Render and validate all CI samples
+        run: |
+          set -e
+          for values in helm-charts/anubis/ci/*.yaml; do
+            name=$(basename "$values" .yaml)
+            echo "::group::$name"
+
+            helm template test helm-charts/anubis -f "$values" > /tmp/rendered.yaml
+
+            python3 -c "
+          import yaml, sys
+
+          with open('/tmp/rendered.yaml') as f:
+              docs = [d for d in yaml.safe_load_all(f) if d]
+
+          print(f'  {len(docs)} resources: ' + ', '.join(
+              f'{d[\"kind\"]}/{d[\"metadata\"][\"name\"]}' for d in docs))
+
+          cm = next((d for d in docs if d.get('kind') == 'ConfigMap'), None)
+          if not cm:
+              print('  No ConfigMap — skipping policy check')
+              sys.exit(0)
+
+          policy = cm.get('data', {}).get('botPolicies.yaml')
+          if not policy:
+              print('  No botPolicies.yaml — skipping policy check')
+              sys.exit(0)
+
+          data = yaml.safe_load(policy)
+          print(f'  Policy keys: {list(data.keys())}')
+
+          if 'store' in data:
+              s = data['store']
+              print(f'  Store: {s.get(\"backend\")} → {s.get(\"parameters\", {}).get(\"path\")}')
+          "
+
+            echo "::endgroup::"
+          done

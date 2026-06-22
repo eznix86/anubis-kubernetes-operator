@@ -1,0 +1,20 @@
+target:
+  service:
+    name: ghost
+    port: 2368
+anubis:
+  keys:
+    existingSecret: anubis-key
+  persistence:
+    enabled: false
+  config: |
+    bots:
+      - name: generic-browser
+        user_agent_regex: Mozilla
+        action: CHALLENGE
+        challenge:
+          algorithm: fast
+          difficulty: 4
+    store:
+      backend: memory
+      parameters: {}

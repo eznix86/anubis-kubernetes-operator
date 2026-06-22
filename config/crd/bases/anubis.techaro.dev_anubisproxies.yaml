@@ -91,6 +91,28 @@ spec:
                     format: int32
                     minimum: 1
                     type: integer
+                  persistence:
+                    description: Persistence configures a PVC for persistent Anubis
+                      challenge state (bbolt backend).
+                    properties:
+                      enabled:
+                        description: Provision a PVC and mount it for persistent
+                          challenge state.
+                        type: boolean
+                      size:
+                        description: PVC size.
+                        type: string
+                      storageClassName:
+                        description: Storage class for the PVC. Empty for the default
+                          StorageClass.
+                        type: string
+                      existingClaim:
+                        description: Use an existing PVC instead of creating one.
+                        type: string
+                      mountPath:
+                        description: Mount path inside the container.
+                        type: string
+                    type: object
                   replicas:
                     format: int32
                     minimum: 1
@@ -99,6 +121,11 @@ spec:
                     type: object
                     x-kubernetes-preserve-unknown-fields: true
                   securityContext:
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                  containerSecurityContext:
+                    description: Security context applied to the Anubis container
+                      (allowPrivilegeEscalation, capabilities, etc.).
                     type: object
                     x-kubernetes-preserve-unknown-fields: true
                   targetOverride:

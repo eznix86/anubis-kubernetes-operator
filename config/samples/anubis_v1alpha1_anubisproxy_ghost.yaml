@@ -1,0 +1,121 @@
+apiVersion: anubis.techaro.dev/v1alpha1
+kind: AnubisProxy
+metadata:
+  name: ghost
+  namespace: ghost
+spec:
+  target:
+    service:
+      name: ghost
+      port: 2368
+
+  anubis:
+    replicas: 1
+    keys:
+      existingSecret: anubis-key
+    # The chart provisions a PVC (anubis.persistence.enabled by default).
+    # You must define store: in your config to tell Anubis where to write data.
+    config: |
+      bots:
+        - import: (data)/bots/_deny-pathological.yaml
+        - import: (data)/bots/aggressive-brazilian-scrapers.yaml
+        - import: (data)/meta/ai-block-aggressive.yaml
+        - import: (data)/crawlers/_allow-good.yaml
+        - import: (data)/clients/x-firefox-ai.yaml
+        - import: (data)/common/keep-internet-working.yaml
+
+        - name: ghost-magic-link-post-non-browser
+          action: DENY
+          expression:
+            all:
+              - method == "POST"
+              - path == "/members/api/send-magic-link/"
+              - '!userAgent.contains("Mozilla")'
+
+        - name: ghost-magic-link-post-browser
+          action: CHALLENGE
+          expression:
+            all:
+              - method == "POST"
+              - path == "/members/api/send-magic-link/"
+              - userAgent.contains("Mozilla")
+          challenge:
+            algorithm: fast
+            difficulty: 4
+
+        - name: generic-browser
+          user_agent_regex: >-
+            Mozilla|Opera
+          action: WEIGH
+          weight:
+            adjust: 10
+
+      openGraph:
+        enabled: true
+        considerHost: false
+        ttl: 24h
+
+      status_codes:
+        CHALLENGE: 200
+        DENY: 200
+
+      store:
+        backend: bbolt
+        parameters:
+          path: /data/anubis.bdb
+
+      thresholds:
+        - name: minimal-suspicion
+          expression: weight <= 0
+          action: ALLOW
+        - name: mild-suspicion
+          expression:
+            all:
+              - weight > 0
+              - weight < 10
+          action: CHALLENGE
+          challenge:
+            algorithm: metarefresh
+            difficulty: 1
+        - name: moderate-suspicion
+          expression:
+            all:
+              - weight >= 10
+              - weight < 20
+          action: CHALLENGE
+          challenge:
+            algorithm: fast
+            difficulty: 2
+        - name: mild-proof-of-work
+          expression:
+            all:
+              - weight >= 20
+              - weight < 30
+          action: CHALLENGE
+          challenge:
+            algorithm: fast
+            difficulty: 4
+        - name: extreme-suspicion
+          expression: weight >= 30
+          action: CHALLENGE
+          challenge:
+            algorithm: fast
+            difficulty: 6
+
+  ingress:
+    enabled: true
+    className: traefik
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+    hosts:
+      - host: ghost.example.com
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - hosts:
+          - ghost.example.com
+        secretName: ghost-tls
+
+  gateway:
+    enabled: false
