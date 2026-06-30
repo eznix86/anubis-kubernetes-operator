@@ -122,7 +122,7 @@ The operator will do the rest.
 
 ### Traefik forwardAuth
 
-Set `spec.mode: forwardAuth` to have Traefik consult Anubis as an external authorizer via its `forwardauth` middleware, instead of proxying through Anubis. Anubis is no longer in the data path of the response — the backend sees the original client IP and headers unchanged. **Traefik is the only supported ingress for this mode.**
+Set `spec.mode: forwardAuth` to have Traefik consult Anubis as an external authorizer via its `forwardauth` middleware, instead of proxying through Anubis. Anubis is no longer in the data path of the response, the backend sees the original client IP and headers unchanged. **Traefik is the only supported ingress for this mode.**
 
 ```yaml
 apiVersion: anubis.techaro.dev/v1alpha1
