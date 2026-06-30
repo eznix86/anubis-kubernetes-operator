@@ -154,7 +154,7 @@ spec:
 
 This generates a Traefik `Middleware` (`<release>-anubis-auth`) and an `IngressRoute` automatically. For the full field set (entry points, bypass route, custom annotations, middleware overrides), see the [chart README](helm-charts/anubis/README.md#modes).
 
-To redirect `www.<host>` to `<host>` at the edge, set `forwardAuth.traefik.wwwRedirect: true`. The chart generates a `redirectRegex` Middleware and wires it into the IngressRoute. The `host` value must be a bare hostname (no `www.` prefix) — the chart will fail rendering otherwise.
+To redirect `www.<host>` to `<host>` at the edge, set `forwardAuth.traefik.wwwRedirect: true`. The chart generates a `redirectRegex` Middleware and wires it into the IngressRoute. The `host` value must be a bare hostname (no `www.` prefix) else the chart will fail rendering otherwise.
 
 Examples:
 
