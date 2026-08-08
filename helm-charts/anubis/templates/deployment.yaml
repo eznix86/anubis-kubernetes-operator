@@ -31,6 +31,10 @@ spec:
       securityContext:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- with .Values.anubis.image.pullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: anubis
           image: "{{ .Values.anubis.image.repository }}:{{ .Values.anubis.image.tag }}"

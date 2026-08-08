@@ -24,6 +24,7 @@ For upstream runtime configuration details behind values such as `anubis.envExtr
 | `anubis.image.repository` | `ghcr.io/techarohq/anubis` | Anubis runtime image repository. |
 | `anubis.image.tag` | `latest` | Anubis runtime image tag. |
 | `anubis.image.pullPolicy` | `IfNotPresent` | Image pull policy for the Anubis container. |
+| `anubis.image.pullSecrets` | `[]` | Image pull secrets for private registries (e.g. `[name: my-registry-secret]`). |
 | `anubis.replicas` | `1` | Number of Anubis replicas to run. |
 | `anubis.strategy` | `{type: Recreate}` | `Deployment.spec.strategy` override. Defaults to `Recreate`; set `type: RollingUpdate` with surge/unavailable settings to opt into rolling deployments. |
 | `anubis.port` | `8923` | Container port exposed by the Anubis HTTP server. |
