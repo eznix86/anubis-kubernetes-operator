@@ -12,6 +12,9 @@ anubis:
     repository: ghcr.io/techarohq/anubis
     tag: latest
     pullPolicy: IfNotPresent
+    # Secrets to use when pulling the image (e.g. from a private registry).
+    pullSecrets: []
+    # - name: my-registry-secret
   replicas: 1
   # Deployment update strategy. Defaults to Recreate; set type to RollingUpdate
   # and configure rollingUpdate to opt into rolling deployments.
